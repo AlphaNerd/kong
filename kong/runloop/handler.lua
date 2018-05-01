@@ -687,11 +687,25 @@ return {
   },
   header_filter = {
     before = function(ctx)
+      local var = ngx.var
+      local header = ngx.header
+
       if ctx.KONG_PROXIED then
         local now = get_now()
         -- time spent waiting for a response from upstream
         ctx.KONG_WAITING_TIME             = now - ctx.KONG_ACCESS_ENDED_AT
         ctx.KONG_HEADER_FILTER_STARTED_AT = now
+      end
+
+      local upstream_header = constants.HEADERS.UPSTREAM_STATUS
+      if singletons.configuration.headers[upstream_header] then
+        local matches, err = ngx.re.match(var.upstream_status,
+                                          "[0-9]+$", "oj")
+        if err then
+          log(ERR, "failed to set upstream status header", err)
+        else
+          header[upstream_header] = matches[0]
+        end
       end
     end,
     after = function(ctx)
