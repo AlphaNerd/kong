@@ -27,6 +27,7 @@ local ngx         = ngx
 local log         = ngx.log
 local null        = ngx.null
 local ngx_now     = ngx.now
+local re_match    = ngx.re.match
 local unpack      = unpack
 
 
@@ -699,10 +700,10 @@ return {
 
       local upstream_header = constants.HEADERS.UPSTREAM_STATUS
       if singletons.configuration.headers[upstream_header] then
-        local matches, err = ngx.re.match(var.upstream_status,
+        local matches, err = re_match(var.upstream_status,
                                           "[0-9]+$", "oj")
         if err then
-          log(ERR, "failed to set upstream status header", err)
+          log(ERR, "failed to set ", upstream_status_header, " header: ", err)
         else
           header[upstream_header] = matches[0]
         end

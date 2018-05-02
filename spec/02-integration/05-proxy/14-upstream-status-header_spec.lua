@@ -2,16 +2,14 @@ local helpers = require "spec.helpers"
 local constants = require "kong.constants"
 
 local function setup_db()
-  ngx.log(ngx.ERR, "before aeach  called" )
   local bp = helpers.get_db_utils()
   assert(helpers.dao:run_migrations())
 
-  local service = bp.services:insert {
+  local service = assert(bp.services:insert {
     host = helpers.mock_upstream_host,
     port = helpers.mock_upstream_port,
     protocol = helpers.mock_upstream_protocol,
-  }
-  assert(service)
+  })
 
   assert(bp.routes:insert {
     protocols = { "http" },
